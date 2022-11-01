@@ -14,5 +14,7 @@ Expressions with whitespace in them need to be wrapped in parentheses.
 
 # Examples
 
+| Source | Output |
+|--------|--------|
 | ¨phi | ϕ |
 | ¨(int(-oo, oo) x(tau) h(t - tau) dtau) | ∫(-∞, ∞) x(τ) h(t - τ) dτ |
