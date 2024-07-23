@@ -1,17 +1,15 @@
 import processMath from "./math.ts";
 
-const mathChar = "¨";
+const mathChar = "`";
 
 type Mode = {
   m: "text";
 } | {
   m: "math";
-  delim: "none" | "parens";
 };
 
 export default function asciimath(src: string): string {
   let mode: Mode = { m: "text" };
-  let parenStack = 0;
   let mathBuffer = [] as string[];
   const rv = [] as string[];
   const iter = src[Symbol.iterator]();
@@ -23,13 +21,8 @@ export default function asciimath(src: string): string {
     switch (mode.m) {
       case "text": {
         if (ch === mathChar) {
-          const peek = iter.next().value;
-          const delim = peek === "(" ? "parens" : "none";
-          if (delim === "parens") parenStack = 1;
-          else mathBuffer.push(peek);
           mode = {
             m: "math",
-            delim,
           };
           continue parsing;
         }
@@ -37,24 +30,13 @@ export default function asciimath(src: string): string {
         break;
       }
       case "math": {
-        if (mode.delim === "parens") {
-          if (ch === "(") parenStack++;
-          if (ch === ")") parenStack--;
-        }
-
-        mathBuffer.push(ch);
-
-        let endOfMath = false;
-        endOfMath ||= mode.delim === "none" && ch.match(/\s/) !== null;
-        endOfMath ||= mode.delim === "parens" && parenStack === 0;
-
-        if (endOfMath) {
-          if (mode.delim === "parens") mathBuffer.pop();
+        if (ch === mathChar) {
           rv.push(processMath(mathBuffer.join("")));
           mode = { m: "text" };
           mathBuffer = [];
           continue parsing;
         }
+        mathBuffer.push(ch);
         break;
       }
     }

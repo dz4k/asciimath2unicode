@@ -248,10 +248,44 @@ export const substitutions: Record<string, string> = {
   " cancel": "\u0338",
 };
 
+export const normalAlphabet = "qwertyuiop asdfghjkl zxcvbnm QWERTYUIOP ASDFGHJKL ZXCVBNM";
+export const alphabets: Record<string, string[]> = {
+  "fr": [..."𝔮𝔴𝔢𝔯𝔱𝔶𝔲𝔦𝔬𝔭 𝔞𝔰𝔡𝔣𝔤𝔥𝔧𝔨𝔩 𝔷𝔵𝔠𝔳𝔟𝔫𝔪 𝔔𝔚𝔈ℜ𝔗𝔜𝔘ℑ𝔒𝔓 𝔄𝔖𝔇𝔉𝔊ℌ𝔍𝔎𝔏 ℨ𝔛ℭ𝔙𝔅𝔑𝔐"],
+}
+
 export default function processMath(math: string): string {
   let rv = math;
-  for (const subst in substitutions) {
+  rv = applySubstitutions(rv);
+  rv = applyAlphabets(rv);
+  return rv;
+}
+
+function applySubstitutions(rv: string) {
+  for(const subst in substitutions) {
     rv = rv.replaceAll(subst, substitutions[subst]);
   }
   return rv;
+}
+
+function applyAlphabets(rv: string): string {
+  const regexBase = String.raw`"((?:[^"]|\\")*)"`;
+  console.log("Applying alphabets", regexBase);
+  for (const alphabet in alphabets) {
+    const regex = new RegExp(alphabet + regexBase);
+    console.log("Constructed regex:", regex);
+    rv = applyAlphabet(rv, regex, alphabets[alphabet]);
+  }
+  return rv;
+
+  function applyAlphabet(rv: string, regex: RegExp, alphabet: string[]): string {
+    return rv.replace(regex, (_, ...groups) => {
+      const [text] = groups;
+      const rendered = [];
+      for (const ch of text) {
+        rendered.push(alphabet[normalAlphabet.indexOf(ch)] ?? ch);
+      }
+      return rendered.join("");
+      //
+    })
+  }
 }
